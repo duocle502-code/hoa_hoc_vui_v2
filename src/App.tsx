@@ -17,7 +17,12 @@ import {
   Search,
   Plus,
   Loader2,
-  FileUp
+  FileUp,
+  X,
+  GraduationCap,
+  Atom,
+  Leaf,
+  BookMarked
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { LabCanvas, ReactionEffect } from './components/LabCanvas';
@@ -51,6 +56,7 @@ export default function App() {
   const [isQuizMode, setIsQuizMode] = useState(false);
   const [isProblemUploaderOpen, setIsProblemUploaderOpen] = useState(false);
   const [labProblemResult, setLabProblemResult] = useState<LabProblemResult | null>(null);
+  const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
 
   const handleReaction = (data: any) => {
     setReactionLog(prev => [`[${new Date().toLocaleTimeString()}] ${data.message}`, ...prev]);
@@ -199,6 +205,64 @@ export default function App() {
 
   const subjectIcons = ['🧪', '🌿', '🔬', '📖'];
 
+  // Dữ liệu chi tiết từng chủ đề
+  const SUBJECT_DETAILS: Record<string, {
+    description: string;
+    color: string;
+    gradient: string;
+    topics: { name: string; emoji: string; desc: string }[];
+    relatedExps: string[];
+  }> = {
+    voco: {
+      description: 'Nghiên cứu các chất vô cơ, phản ứng axit-bazơ, muối, oxit và các nguyên tố hóa học.',
+      color: 'violet',
+      gradient: 'from-violet-600 to-purple-600',
+      topics: [
+        { name: 'Axit & Bazơ', emoji: '⚗️', desc: 'Phản ứng trung hòa, chỉ thị pH' },
+        { name: 'Muối & Oxit', emoji: '🔬', desc: 'Phản ứng trao đổi, kết tủa' },
+        { name: 'Kim loại', emoji: '⚙️', desc: 'Dãy hoạt động, phản ứng với axit' },
+        { name: 'Phi kim', emoji: '💨', desc: 'Điều chế khí, nhận biết' },
+      ],
+      relatedExps: ['exp1', 'exp2'],
+    },
+    huuco: {
+      description: 'Nghiên cứu hợp chất carbon: hidrocacbon, ancol, axit hữu cơ, polime.',
+      color: 'emerald',
+      gradient: 'from-emerald-600 to-teal-600',
+      topics: [
+        { name: 'Hidrocacbon', emoji: '⛽', desc: 'Ankan, anken, ankin, aren' },
+        { name: 'Ancol & Phenol', emoji: '🍷', desc: 'Tính chất, phản ứng đặc trưng' },
+        { name: 'Axit hữu cơ', emoji: '🍋', desc: 'Axit cacboxylic, este' },
+        { name: 'Polime', emoji: '🧵', desc: 'Nhựa tổng hợp, cao su' },
+      ],
+      relatedExps: [],
+    },
+    phantich: {
+      description: 'Các phương pháp phân tích định tính và định lượng trong hóa học.',
+      color: 'cyan',
+      gradient: 'from-cyan-600 to-blue-600',
+      topics: [
+        { name: 'Nhận biết ion', emoji: '🔍', desc: 'Phản ứng đặc trưng nhận biết' },
+        { name: 'Chuẩn độ', emoji: '💧', desc: 'Chuẩn độ axit-bazơ, oxi hóa-khử' },
+        { name: 'Kết tủa', emoji: '❄️', desc: 'Phản ứng tạo kết tủa đặc trưng' },
+        { name: 'Khí thử', emoji: '💨', desc: 'Nhận biết các loại khí' },
+      ],
+      relatedExps: ['exp1'],
+    },
+    lythuyet: {
+      description: 'Nền tảng lý thuyết hóa học: cấu tạo nguyên tử, liên kết, nhiệt động lực học.',
+      color: 'amber',
+      gradient: 'from-amber-600 to-orange-600',
+      topics: [
+        { name: 'Nguyên tử', emoji: '⚛️', desc: 'Cấu tạo, số lượng tử' },
+        { name: 'Liên kết hóa học', emoji: '🔗', desc: 'Cộng hóa trị, ion, kim loại' },
+        { name: 'Nhiệt động lực học', emoji: '🌡️', desc: 'Entanpi, entropi, Gibbs' },
+        { name: 'Động học', emoji: '⚡', desc: 'Tốc độ, cân bằng hóa học' },
+      ],
+      relatedExps: [],
+    },
+  };
+
   return (
     <div className="flex h-screen bg-[#0a0e1a] text-slate-200 overflow-hidden ambient-bg">
       {/* Sidebar */}
@@ -320,27 +384,52 @@ export default function App() {
                   >
                     {/* Subject Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                      {SUBJECTS.map((subject, idx) => (
+                      {SUBJECTS.map((subject, idx) => {
+                        const detail = SUBJECT_DETAILS[subject.id];
+                        const colorMap: Record<string, string> = {
+                          violet: 'from-violet-500/20 to-purple-500/10 border-violet-500/30 hover:border-violet-400/50',
+                          emerald: 'from-emerald-500/20 to-teal-500/10 border-emerald-500/30 hover:border-emerald-400/50',
+                          cyan: 'from-cyan-500/20 to-blue-500/10 border-cyan-500/30 hover:border-cyan-400/50',
+                          amber: 'from-amber-500/20 to-orange-500/10 border-amber-500/30 hover:border-amber-400/50',
+                        };
+                        const glowMap: Record<string, string> = {
+                          violet: 'shadow-violet-500/20', emerald: 'shadow-emerald-500/20',
+                          cyan: 'shadow-cyan-500/20', amber: 'shadow-amber-500/20',
+                        };
+                        return (
                         <motion.div 
                           key={subject.id} 
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: idx * 0.1 }}
-                          className="glass-card p-6 rounded-2xl hover:scale-[1.03] transition-all duration-300 cursor-pointer group relative overflow-hidden"
+                          onClick={() => setSelectedSubject(subject.id)}
+                          className={cn(
+                            "glass-card p-6 rounded-2xl cursor-pointer group relative overflow-hidden border transition-all duration-300",
+                            "hover:scale-[1.03] hover:shadow-xl",
+                            detail ? colorMap[detail.color] : ''
+                          )}
                         >
                           {/* Hover gradient overlay */}
-                          <div className="absolute inset-0 bg-gradient-to-br from-violet-500/0 to-cyan-500/0 group-hover:from-violet-500/5 group-hover:to-cyan-500/5 transition-all duration-500 rounded-2xl" />
+                          <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/0 group-hover:from-white/5 group-hover:to-transparent transition-all duration-500 rounded-2xl" />
                           
                           <div className="relative z-10">
                             <div className="text-3xl mb-3">{subjectIcons[idx]}</div>
                             <h3 className="font-bold text-slate-100 mb-1 text-sm">{subject.name}</h3>
-                            <p className="text-xs text-slate-500">{subject.questionsCount} bài học</p>
+                            <p className="text-xs text-slate-500 mb-3">{subject.questionsCount} bài học</p>
+                            <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 group-hover:text-slate-300 transition-colors">
+                              <span>Xem chi tiết</span>
+                              <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                            </div>
                           </div>
 
                           {/* Bottom gradient line */}
-                          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-violet-500/0 via-violet-500/0 to-cyan-500/0 group-hover:from-violet-500/50 group-hover:via-cyan-500/50 group-hover:to-emerald-500/50 transition-all duration-500" />
+                          <div className={cn(
+                            "absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-all duration-500",
+                            detail?.gradient ? `bg-gradient-to-r ${detail.gradient}` : 'from-violet-500 to-cyan-500'
+                          )} />
                         </motion.div>
-                      ))}
+                        );
+                      })}
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -1022,6 +1111,143 @@ export default function App() {
         onClose={() => setIsProblemUploaderOpen(false)}
         onChemicalsGenerated={handleProblemResult}
       />
+      {/* ===== Subject Detail Modal ===== */}
+      <AnimatePresence>
+        {selectedSubject && (() => {
+          const subject = SUBJECTS.find(s => s.id === selectedSubject);
+          const detail = SUBJECT_DETAILS[selectedSubject];
+          if (!subject || !detail) return null;
+          const gradientMap: Record<string, string> = {
+            violet: 'from-violet-600 to-purple-600',
+            emerald: 'from-emerald-600 to-teal-600',
+            cyan: 'from-cyan-600 to-blue-600',
+            amber: 'from-amber-600 to-orange-600',
+          };
+          const relatedExperiments = EXPERIMENTS.filter(e => detail.relatedExps.includes(e.id));
+          return (
+            <motion.div
+              key="subject-modal-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedSubject(null)}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              style={{ background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)' }}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+                onClick={e => e.stopPropagation()}
+                className="w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl"
+                style={{ background: '#0f172a', border: '1px solid rgba(148,163,184,0.15)' }}
+              >
+                {/* Header */}
+                <div className={`bg-gradient-to-r ${gradientMap[detail.color]} p-6 relative overflow-hidden`}>
+                  <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '20px 20px' }} />
+                  <div className="relative flex items-start justify-between">
+                    <div>
+                      <div className="text-4xl mb-2">
+                        {subjectIcons[SUBJECTS.findIndex(s => s.id === selectedSubject)]}
+                      </div>
+                      <h2 className="text-2xl font-extrabold text-white">{subject.name}</h2>
+                      <p className="text-white/70 text-sm mt-1 max-w-md">{detail.description}</p>
+                    </div>
+                    <button
+                      onClick={() => setSelectedSubject(null)}
+                      className="w-9 h-9 rounded-xl bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-4 mt-4">
+                    <div className="px-3 py-1 rounded-full bg-white/15 text-white text-xs font-bold">
+                      {subject.questionsCount} bài học
+                    </div>
+                    <div className="px-3 py-1 rounded-full bg-white/15 text-white text-xs font-bold">
+                      {detail.topics.length} chủ đề
+                    </div>
+                    {relatedExperiments.length > 0 && (
+                      <div className="px-3 py-1 rounded-full bg-white/15 text-white text-xs font-bold">
+                        {relatedExperiments.length} thí nghiệm
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Body */}
+                <div className="p-6 space-y-6">
+                  {/* Topics */}
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                      <Atom className="w-4 h-4" /> Các chủ đề chính
+                    </h3>
+                    <div className="grid grid-cols-2 gap-3">
+                      {detail.topics.map((topic, i) => (
+                        <div key={i} className="flex items-start gap-3 p-3 rounded-xl bg-slate-800/60 border border-slate-700/40 hover:border-slate-600/60 transition-colors">
+                          <span className="text-xl shrink-0">{topic.emoji}</span>
+                          <div>
+                            <div className="text-sm font-bold text-slate-200">{topic.name}</div>
+                            <div className="text-xs text-slate-500 mt-0.5">{topic.desc}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Related Experiments */}
+                  {relatedExperiments.length > 0 ? (
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <FlaskConical className="w-4 h-4" /> Thí nghiệm liên quan
+                      </h3>
+                      <div className="space-y-2">
+                        {relatedExperiments.map(exp => (
+                          <div key={exp.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-800/60 border border-slate-700/40 hover:border-violet-500/30 transition-colors group">
+                            <div>
+                              <div className="text-sm font-bold text-slate-200">{exp.title}</div>
+                              <div className="text-xs text-slate-500 mt-0.5 line-clamp-1">{exp.description}</div>
+                            </div>
+                            <button
+                              onClick={() => { startExperiment(exp.id); setSelectedSubject(null); }}
+                              className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-violet-600 to-cyan-600 text-white rounded-lg text-xs font-bold hover:from-violet-500 hover:to-cyan-500 transition-all ml-3"
+                            >
+                              <Play className="w-3 h-3 fill-current" /> Bắt đầu
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-6 text-slate-600 rounded-xl bg-slate-800/30 border border-slate-700/30">
+                      <GraduationCap className="w-8 h-8 mb-2 opacity-30" />
+                      <p className="text-sm font-medium text-slate-500">Thí nghiệm đang được phát triển</p>
+                      <p className="text-xs text-slate-600 mt-1">Sẽ có trong phiên bản tiếp theo</p>
+                    </div>
+                  )}
+
+                  {/* Go to Lab button */}
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      onClick={() => { handleTabChange('lab'); setSelectedSubject(null); }}
+                      className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-violet-600 to-cyan-600 text-white rounded-xl font-bold hover:from-violet-500 hover:to-cyan-500 transition-all shadow-lg shadow-violet-500/20"
+                    >
+                      <FlaskConical className="w-4 h-4" /> Vào Phòng thí nghiệm
+                    </button>
+                    <button
+                      onClick={() => setSelectedSubject(null)}
+                      className="px-5 py-3 bg-slate-800 text-slate-400 rounded-xl font-bold hover:bg-slate-700 hover:text-slate-200 transition-all border border-slate-700/50"
+                    >
+                      Đóng
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          );
+        })()}
+      </AnimatePresence>
     </div>
   );
 }
