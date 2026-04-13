@@ -748,31 +748,70 @@ export default function App() {
                       <button 
                         onClick={() => {
                           Swal.fire({
-                            title: 'Thêm hóa chất mới',
+                            title: '➕ Thêm hóa chất mới',
+                            width: 520,
                             html: `
-                              <input id="swal-name" class="swal2-input" placeholder="Tên hóa chất">
-                              <input id="swal-formula" class="swal2-input" placeholder="Công thức">
-                              <input id="swal-color" type="color" class="swal2-input" value="#3b82f6" style="height: 50px">
-                              <select id="swal-state" class="swal2-input">
-                                <option value="liquid">Lỏng</option>
-                                <option value="solid">Rắn</option>
-                                <option value="gas">Khí</option>
+                              <style>
+                                .swal-label {
+                                  display:block; text-align:left; font-size:11px; font-weight:700;
+                                  color:#94a3b8; text-transform:uppercase; letter-spacing:.06em;
+                                  margin: 10px 22px 2px;
+                                }
+                                #swal2-html-container .swal2-input,
+                                #swal2-html-container select.swal2-input { margin: 4px auto !important; }
+                              </style>
+                              <label class="swal-label">Tên hóa chất *</label>
+                              <input id="swal-name" class="swal2-input" placeholder="VD: Axit Clohidric">
+                              <label class="swal-label">Công thức hóa học *</label>
+                              <input id="swal-formula" class="swal2-input" placeholder="VD: HCl">
+                              <label class="swal-label">Mô tả</label>
+                              <input id="swal-desc" class="swal2-input" placeholder="VD: Axit mạnh, ăn mòn kim loại">
+                              <label class="swal-label">Loại hóa chất</label>
+                              <select id="swal-category" class="swal2-input">
+                                <option value="Axit">⚗️ Axit</option>
+                                <option value="Bazơ">🧪 Bazơ</option>
+                                <option value="Muối &amp; Oxit">🔬 Muối &amp; Oxit</option>
+                                <option value="Kim loại">⚙️ Kim loại</option>
+                                <option value="Chỉ thị">🌈 Chỉ thị màu</option>
+                                <option value="Khác">📦 Khác</option>
                               </select>
+                              <label class="swal-label">Trạng thái vật lý</label>
+                              <select id="swal-state" class="swal2-input">
+                                <option value="liquid">💧 Lỏng</option>
+                                <option value="solid">🪨 Rắn</option>
+                                <option value="gas">💨 Khí</option>
+                              </select>
+                              <label class="swal-label">Màu sắc</label>
+                              <input id="swal-color" type="color" class="swal2-input" value="#3b82f6" style="height:48px; cursor:pointer">
+                              <label class="swal-label">Cảnh báo an toàn (cách nhau bằng dấu phẩy)</label>
+                              <input id="swal-warning" class="swal2-input" placeholder="VD: Ăn mòn, Dễ bay hơi">
                             `,
                             focusConfirm: false,
                             showCancelButton: true,
-                            confirmButtonText: 'Thêm ngay',
+                            confirmButtonText: 'Thêm vào thư viện',
                             cancelButtonText: 'Hủy',
+                            confirmButtonColor: '#7c3aed',
                             preConfirm: () => {
-                              const name = (document.getElementById('swal-name') as HTMLInputElement).value;
-                              const formula = (document.getElementById('swal-formula') as HTMLInputElement).value;
-                              const color = (document.getElementById('swal-color') as HTMLInputElement).value;
+                              const name = (document.getElementById('swal-name') as HTMLInputElement).value.trim();
+                              const formula = (document.getElementById('swal-formula') as HTMLInputElement).value.trim();
+                              const desc = (document.getElementById('swal-desc') as HTMLInputElement).value.trim();
+                              const category = (document.getElementById('swal-category') as HTMLSelectElement).value;
                               const state = (document.getElementById('swal-state') as HTMLSelectElement).value;
+                              const color = (document.getElementById('swal-color') as HTMLInputElement).value;
+                              const warningRaw = (document.getElementById('swal-warning') as HTMLInputElement).value.trim();
                               if (!name || !formula) {
-                                Swal.showValidationMessage('Vui lòng nhập đầy đủ thông tin!');
+                                Swal.showValidationMessage('⚠️ Vui lòng nhập Tên và Công thức hóa học!');
                                 return false;
                               }
-                              return { id: Date.now().toString(), name, formula, color, state, safetyWarnings: ['Cần cẩn thận'], description: 'Hóa chất tự thêm' };
+                              const safetyWarnings = warningRaw
+                                ? warningRaw.split(',').map((w: string) => w.trim()).filter(Boolean)
+                                : ['Cần cẩn thận khi sử dụng'];
+                              return {
+                                id: Date.now().toString(),
+                                name, formula, color, state, category,
+                                description: desc || `${category} — ${formula}`,
+                                safetyWarnings,
+                              };
                             }
                           }).then((result) => {
                             if (result.isConfirmed) {
