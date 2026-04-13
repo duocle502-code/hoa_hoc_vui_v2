@@ -46,6 +46,8 @@ export default function App() {
   const [labMode, setLabMode] = useState<'3d' | 'visual'>('visual');
   const [reactionLog, setReactionLog] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [librarySearch, setLibrarySearch] = useState('');
+  const [libraryStateFilter, setLibraryStateFilter] = useState<string>('');
   const [isQuizMode, setIsQuizMode] = useState(false);
   const [isProblemUploaderOpen, setIsProblemUploaderOpen] = useState(false);
   const [labProblemResult, setLabProblemResult] = useState<LabProblemResult | null>(null);
@@ -740,53 +742,108 @@ export default function App() {
                     exit={{ opacity: 0 }}
                     className="space-y-6"
                   >
+                    {/* Header: title + add button */}
                     <div className="flex items-center justify-between">
                       <h3 className="text-2xl font-bold text-slate-100">Thư viện hóa chất</h3>
-                      <div className="flex gap-3">
-                        <button 
-                          onClick={() => {
-                            Swal.fire({
-                              title: 'Thêm hóa chất mới',
-                              html: `
-                                <input id="swal-name" class="swal2-input" placeholder="Tên hóa chất">
-                                <input id="swal-formula" class="swal2-input" placeholder="Công thức">
-                                <input id="swal-color" type="color" class="swal2-input" value="#3b82f6" style="height: 50px">
-                                <select id="swal-state" class="swal2-input">
-                                  <option value="liquid">Lỏng</option>
-                                  <option value="solid">Rắn</option>
-                                  <option value="gas">Khí</option>
-                                </select>
-                              `,
-                              focusConfirm: false,
-                              showCancelButton: true,
-                              confirmButtonText: 'Thêm ngay',
-                              cancelButtonText: 'Hủy',
-                              preConfirm: () => {
-                                const name = (document.getElementById('swal-name') as HTMLInputElement).value;
-                                const formula = (document.getElementById('swal-formula') as HTMLInputElement).value;
-                                const color = (document.getElementById('swal-color') as HTMLInputElement).value;
-                                const state = (document.getElementById('swal-state') as HTMLSelectElement).value;
-                                if (!name || !formula) {
-                                  Swal.showValidationMessage('Vui lòng nhập đầy đủ thông tin!');
-                                  return false;
-                                }
-                                return { id: Date.now().toString(), name, formula, color, state, safetyWarnings: ['Cần cẩn thận'], description: 'Hóa chất tự thêm' };
+                      <button 
+                        onClick={() => {
+                          Swal.fire({
+                            title: 'Thêm hóa chất mới',
+                            html: `
+                              <input id="swal-name" class="swal2-input" placeholder="Tên hóa chất">
+                              <input id="swal-formula" class="swal2-input" placeholder="Công thức">
+                              <input id="swal-color" type="color" class="swal2-input" value="#3b82f6" style="height: 50px">
+                              <select id="swal-state" class="swal2-input">
+                                <option value="liquid">Lỏng</option>
+                                <option value="solid">Rắn</option>
+                                <option value="gas">Khí</option>
+                              </select>
+                            `,
+                            focusConfirm: false,
+                            showCancelButton: true,
+                            confirmButtonText: 'Thêm ngay',
+                            cancelButtonText: 'Hủy',
+                            preConfirm: () => {
+                              const name = (document.getElementById('swal-name') as HTMLInputElement).value;
+                              const formula = (document.getElementById('swal-formula') as HTMLInputElement).value;
+                              const color = (document.getElementById('swal-color') as HTMLInputElement).value;
+                              const state = (document.getElementById('swal-state') as HTMLSelectElement).value;
+                              if (!name || !formula) {
+                                Swal.showValidationMessage('Vui lòng nhập đầy đủ thông tin!');
+                                return false;
                               }
-                            }).then((result) => {
-                              if (result.isConfirmed) {
-                                addChemical(result.value);
-                              }
-                            });
-                          }}
-                          className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-violet-600 to-cyan-600 text-white rounded-xl font-bold shadow-lg shadow-violet-500/20 hover:shadow-violet-500/40 transition-all glow-btn"
-                        >
-                          <Plus className="w-5 h-5" /> Thêm hóa chất
-                        </button>
+                              return { id: Date.now().toString(), name, formula, color, state, safetyWarnings: ['Cần cẩn thận'], description: 'Hóa chất tự thêm' };
+                            }
+                          }).then((result) => {
+                            if (result.isConfirmed) {
+                              addChemical(result.value);
+                            }
+                          });
+                        }}
+                        className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-violet-600 to-cyan-600 text-white rounded-xl font-bold shadow-lg shadow-violet-500/20 hover:shadow-violet-500/40 transition-all glow-btn"
+                      >
+                        <Plus className="w-5 h-5" /> Thêm hóa chất
+                      </button>
+                    </div>
+
+                    {/* Search + Filter bar */}
+                    <div className="flex items-center gap-3">
+                      <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                        <input
+                          type="text"
+                          placeholder="Tìm theo tên, công thức, mô tả..."
+                          value={librarySearch}
+                          onChange={(e) => setLibrarySearch(e.target.value)}
+                          className="w-full pl-10 pr-4 py-2.5 dark-input text-sm"
+                        />
+                        {librarySearch && (
+                          <button
+                            onClick={() => setLibrarySearch('')}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center text-slate-500 hover:text-slate-300 transition-colors"
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        {(['', 'liquid', 'solid', 'gas'] as const).map((s) => (
+                          <button
+                            key={s}
+                            onClick={() => setLibraryStateFilter(s)}
+                            className={cn(
+                              'px-3 py-2 rounded-xl text-xs font-bold transition-all border',
+                              libraryStateFilter === s
+                                ? 'bg-violet-500/20 text-violet-300 border-violet-500/40'
+                                : 'bg-slate-800/60 text-slate-500 border-slate-700/40 hover:bg-slate-700/60 hover:text-slate-300'
+                            )}
+                          >
+                            {s === '' ? 'Tất cả' : s === 'liquid' ? 'Lỏng' : s === 'solid' ? 'Rắn' : 'Khí'}
+                          </button>
+                        ))}
                       </div>
                     </div>
 
+                    {/* Chemical grid */}
+                    {(() => {
+                      const q = librarySearch.toLowerCase().trim();
+                      const filtered = chemicals.filter(c => {
+                        const matchQuery = !q ||
+                          (c.name ?? '').toLowerCase().includes(q) ||
+                          (c.formula ?? '').toLowerCase().includes(q) ||
+                          (c.description ?? '').toLowerCase().includes(q);
+                        const matchState = !libraryStateFilter || c.state === libraryStateFilter;
+                        return matchQuery && matchState;
+                      });
+                      return filtered.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-20 text-slate-600">
+                          <Search className="w-12 h-12 mb-3 opacity-20" />
+                          <p className="text-base font-medium text-slate-500">Không tìm thấy hóa chất{q ? ` "${librarySearch}"` : ''}</p>
+                          <p className="text-sm text-slate-600 mt-1">Thử thay đổi từ khóa hoặc bộ lọc</p>
+                        </div>
+                      ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                      {chemicals.map((chem, idx) => (
+                      {filtered.map((chem, idx) => (
                         <motion.div 
                           key={chem.id}
                           initial={{ opacity: 0, y: 20 }}
@@ -822,6 +879,8 @@ export default function App() {
                         </motion.div>
                       ))}
                     </div>
+                      );
+                    })()}
                   </motion.div>
                 )}
 
