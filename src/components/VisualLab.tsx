@@ -26,7 +26,12 @@ interface VisualLabProps {
 }
 
 // Phân loại hóa chất theo nhóm
-const getChemicalCategory = (id: string): string => {
+const getChemicalCategory = (id: string, category?: string): string => {
+  // Ưu tiên dùng field category nếu có (hóa chất do người dùng thêm)
+  const validCategories = ['Axit', 'Bazơ', 'Muối & Oxit', 'Kim loại', 'Chỉ thị', 'Khác'];
+  if (category && validCategories.includes(category)) return category;
+
+  // Fallback: nhận dạng theo id (hóa chất mặc định)
   const acids = ['hcl', 'h2so4', 'hno3'];
   const bases = ['naoh', 'koh', 'caoh2'];
   const salts = ['bacl2', 'agno3', 'cuso4', 'fecl3', 'na2co3', 'ki', 'kmno4'];
@@ -80,7 +85,7 @@ export const VisualLab: React.FC<VisualLabProps> = ({ chemicals, isHeating = fal
   const groupedChemicals = useMemo(() => {
     const groups: Record<string, any[]> = {};
     chemicals.forEach(chem => {
-      const cat = getChemicalCategory(chem.id);
+      const cat = getChemicalCategory(chem.id, chem.category);
       if (!groups[cat]) groups[cat] = [];
       groups[cat].push(chem);
     });
@@ -99,7 +104,7 @@ export const VisualLab: React.FC<VisualLabProps> = ({ chemicals, isHeating = fal
       );
     }
     if (activeCategory) {
-      result = result.filter(c => getChemicalCategory(c.id) === activeCategory);
+      result = result.filter(c => getChemicalCategory(c.id, c.category) === activeCategory);
     }
     return result;
   }, [chemicals, searchQuery, activeCategory]);
@@ -108,7 +113,7 @@ export const VisualLab: React.FC<VisualLabProps> = ({ chemicals, isHeating = fal
   const filteredGrouped = useMemo(() => {
     const groups: Record<string, any[]> = {};
     filteredChemicals.forEach(chem => {
-      const cat = getChemicalCategory(chem.id);
+      const cat = getChemicalCategory(chem.id, chem.category);
       if (!groups[cat]) groups[cat] = [];
       groups[cat].push(chem);
     });
