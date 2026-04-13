@@ -60,6 +60,20 @@ export const VisualLab: React.FC<VisualLabProps> = ({ chemicals, isHeating = fal
   // Equipment states
   const [activeTab, setActiveTab] = useState<'chemical' | 'equipment'>('chemical');
   const [placedEquipment, setPlacedEquipment] = useState<PlacedEquipment[]>([]);
+
+  // Reset category filter khi có query tìm kiếm
+  const handleSearchChange = (q: string) => {
+    setSearchQuery(q);
+    if (q.trim()) setActiveCategory(null);
+  };
+
+  // Reset search query khi chuyển tab
+  const handleTabChange = (tab: 'chemical' | 'equipment') => {
+    setActiveTab(tab);
+    setSearchQuery('');
+    setActiveCategory(null);
+  };
+
   const labAreaRef = useRef<HTMLDivElement>(null);
 
   // Nhóm hóa chất theo danh mục
@@ -675,7 +689,7 @@ export const VisualLab: React.FC<VisualLabProps> = ({ chemicals, isHeating = fal
         {/* Header Tabs */}
         <div className="flex border-b border-slate-700/30">
           <button
-            onClick={() => setActiveTab('chemical')}
+            onClick={() => handleTabChange('chemical')}
             className={cn(
               "flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition-colors",
               activeTab === 'chemical' ? "bg-slate-800/80 text-violet-400 border-b-2 border-violet-500" : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/40"
@@ -685,7 +699,7 @@ export const VisualLab: React.FC<VisualLabProps> = ({ chemicals, isHeating = fal
             Hóa Chất
           </button>
           <button
-            onClick={() => setActiveTab('equipment')}
+            onClick={() => handleTabChange('equipment')}
             className={cn(
               "flex-1 py-3 text-sm font-bold flex items-center justify-center gap-2 transition-colors",
               activeTab === 'equipment' ? "bg-slate-800/80 text-cyan-400 border-b-2 border-cyan-500" : "text-slate-500 hover:text-slate-300 hover:bg-slate-800/40"
@@ -704,7 +718,7 @@ export const VisualLab: React.FC<VisualLabProps> = ({ chemicals, isHeating = fal
               type="text"
               placeholder="Tìm kiếm..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               className="w-full pl-9 pr-3 py-2 dark-input text-xs"
             />
           </div>
@@ -1000,10 +1014,10 @@ export const VisualLab: React.FC<VisualLabProps> = ({ chemicals, isHeating = fal
             );
           })}
 
-          {filteredChemicals.length === 0 && (
+          {Object.keys(filteredGrouped).length === 0 && (
             <div className="flex flex-col items-center justify-center py-8 text-slate-600">
               <Search className="w-8 h-8 mb-2 opacity-30" />
-              <span className="text-xs font-medium">Không tìm thấy hóa chất</span>
+              <span className="text-xs font-medium">Không tìm thấy hóa chất{searchQuery ? ` "${searchQuery}"` : ''}</span>
             </div>
           )}
           </>
