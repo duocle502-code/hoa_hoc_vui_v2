@@ -64,7 +64,9 @@ html.light {
 }
 
 /* Smooth theme transition */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   transition-property: background-color, border-color, color, box-shadow;
   transition-duration: 0.25s;
   transition-timing-function: ease;
@@ -83,13 +85,16 @@ html.light {
     width: 6px;
     height: 6px;
   }
+
   ::-webkit-scrollbar-track {
     background: transparent;
   }
+
   ::-webkit-scrollbar-thumb {
     background: var(--scrollbar-thumb);
     border-radius: 999px;
   }
+
   ::-webkit-scrollbar-thumb:hover {
     background: var(--scrollbar-thumb-hover);
   }
@@ -163,6 +168,7 @@ html.light .glass-sidebar {
 .gradient-border {
   position: relative;
 }
+
 .gradient-border::before {
   content: '';
   position: absolute;
@@ -208,6 +214,7 @@ html.light .glass-sidebar {
   overflow: hidden;
   transition: all 0.3s ease;
 }
+
 .glow-btn::after {
   content: '';
   position: absolute;
@@ -219,48 +226,77 @@ html.light .glass-sidebar {
   transition: opacity 0.3s ease;
   z-index: -1;
 }
+
 .glow-btn:hover::after {
   opacity: 1;
 }
 
 /* ===== ANIMATIONS ===== */
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 @keyframes breathing-glow {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 10px rgba(139, 92, 246, 0.2), 0 0 20px rgba(139, 92, 246, 0.1);
   }
+
   50% {
     box-shadow: 0 0 20px rgba(139, 92, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.2);
   }
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
 }
 
 @keyframes gradient-shift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 @keyframes pulse-ring {
-  0% { transform: scale(1); opacity: 0.8; }
-  100% { transform: scale(1.5); opacity: 0; }
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
 }
 
 .animate-shimmer {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(139, 92, 246, 0.08) 50%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(139, 92, 246, 0.08) 50%,
+      transparent 100%);
   background-size: 200% 100%;
   animation: shimmer 3s ease-in-out infinite;
 }
@@ -283,6 +319,7 @@ html.light .glass-sidebar {
   position: relative;
   background-color: var(--bg-base);
 }
+
 .ambient-bg::before {
   content: '';
   position: absolute;
@@ -342,4 +379,137 @@ html.light .glass-sidebar {
   transform: scale(1.1);
   border-color: rgba(139, 92, 246, 0.5);
   box-shadow: 0 0 16px rgba(139, 92, 246, 0.25);
+}
+
+/* ===== LIGHT MODE TEXT + UI OVERRIDES ===== */
+
+/* Nav inactive items */
+html.light nav button {
+  color: #374151 !important;
+}
+
+html.light nav button:hover {
+  background: rgba(139, 92, 246, 0.07) !important;
+  color: #1e1b4b !important;
+}
+
+html.light nav button.text-violet-300 {
+  color: #6d28d9 !important;
+}
+
+/* Sidebar subtext (VIRTUAL LAB, etc.) */
+html.light .glass-sidebar p,
+html.light .glass-sidebar span:not(.gradient-text) {
+  color: #6b7280 !important;
+}
+
+/* Streak card */
+html.light .glass-sidebar .bg-slate-800 {
+  background: #e5e7eb !important;
+}
+
+/* Settings button in sidebar */
+html.light aside button.bg-slate-800\/80,
+html.light aside button[class*="bg-slate-8"] {
+  background: rgba(241, 245, 249, 0.9) !important;
+  border-color: rgba(139, 92, 246, 0.2) !important;
+  color: #374151 !important;
+}
+
+html.light aside button[class*="bg-slate-8"]:hover {
+  background: rgba(139, 92, 246, 0.08) !important;
+  color: #1e1b4b !important;
+}
+
+/* Header  */
+html.light header {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-color: rgba(139, 92, 246, 0.15) !important;
+}
+
+html.light header h2 {
+  color: #111827 !important;
+}
+
+/* Generic text overrides for main content */
+html.light .text-slate-100,
+html.light .text-slate-200 {
+  color: #111827 !important;
+}
+
+html.light .text-slate-300 {
+  color: #374151 !important;
+}
+
+html.light .text-slate-400 {
+  color: #4b5563 !important;
+}
+
+html.light .text-slate-500 {
+  color: #6b7280 !important;
+}
+
+html.light .text-slate-600 {
+  color: #9ca3af !important;
+}
+
+/* Glass cards in light mode */
+html.light .glass-card h3,
+html.light .glass-card h4,
+html.light .glass-card .text-slate-100,
+html.light .glass-card .text-slate-200 {
+  color: #111827 !important;
+}
+
+html.light .glass-card .text-slate-400,
+html.light .glass-card .text-slate-500 {
+  color: #4b5563 !important;
+}
+
+/* Dark backgrounds inside cards (e.g., bg-slate-800 progress bars) */
+html.light [class*="bg-slate-8"],
+html.light [class*="bg-slate-9"] {
+  background-color: rgba(226, 232, 240, 0.8) !important;
+}
+
+/* Experiment card thumbnails */
+html.light .glass-card .h-32 {
+  background: linear-gradient(135deg, #ede9fe 0%, #e0f2fe 100%) !important;
+}
+
+html.light .glass-card .h-32 .absolute.inset-0.bg-gradient-to-t {
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.6), transparent) !important;
+}
+
+/* Section headings */
+html.light h2.text-2xl,
+html.light h3.text-xl {
+  color: #111827 !important;
+}
+
+/* Reaction log panel */
+html.light .font-mono {
+  background: rgba(241, 245, 249, 0.95) !important;
+  border-color: rgba(139, 92, 246, 0.2) !important;
+}
+
+html.light .font-mono .text-slate-600 {
+  color: #6b7280 !important;
+}
+
+/* Lab mode toggle buttons */
+html.light .bg-slate-800\/60 {
+  background: rgba(241, 245, 249, 0.85) !important;
+  border-color: rgba(139, 92, 246, 0.2) !important;
+}
+
+html.light .text-slate-400.hover\:text-slate-200 {
+  color: #4b5563 !important;
+}
+
+/* Misc buttons */
+html.light button.bg-slate-800\/60 {
+  background: rgba(241, 245, 249, 0.9) !important;
+  border-color: rgba(139, 92, 246, 0.2) !important;
+  color: #374151 !important;
 }
