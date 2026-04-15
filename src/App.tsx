@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { 
-  Beaker, 
-  BookOpen, 
-  LayoutDashboard, 
-  Library, 
-  BarChart3, 
+import React, { useState, useEffect } from 'react';
+import {
+  Beaker,
+  BookOpen,
+  LayoutDashboard,
+  Library,
+  BarChart3,
   Settings as SettingsIcon,
   FlaskConical,
   Zap,
@@ -22,7 +22,9 @@ import {
   GraduationCap,
   Atom,
   Leaf,
-  BookMarked
+  BookMarked,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { LabCanvas, ReactionEffect } from './components/LabCanvas';
@@ -57,6 +59,23 @@ export default function App() {
   const [isProblemUploaderOpen, setIsProblemUploaderOpen] = useState(false);
   const [labProblemResult, setLabProblemResult] = useState<LabProblemResult | null>(null);
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(
+    () => localStorage.getItem('theme') !== 'light'
+  );
+
+  // Sync theme class on <html> and persist to localStorage
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isDarkMode) {
+      root.classList.remove('light');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      root.classList.add('light');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
+
+  const toggleTheme = () => setIsDarkMode(prev => !prev);
 
   const handleReaction = (data: any) => {
     setReactionLog(prev => [`[${new Date().toLocaleTimeString()}] ${data.message}`, ...prev]);
@@ -97,7 +116,7 @@ export default function App() {
     try {
       const chemNames = selectedChemicals.map(id => chemicals.find(c => c.id === id)?.name || id);
       const result = await predictReaction(chemNames);
-      
+
       if (result) {
         setCustomReaction({
           color: result.color,
@@ -121,7 +140,7 @@ export default function App() {
   };
 
   const toggleChemical = (id: string) => {
-    setSelectedChemicals(prev => 
+    setSelectedChemicals(prev =>
       prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
     );
     setActiveExperiment(undefined);
@@ -150,16 +169,16 @@ export default function App() {
   // Xử lý kết quả phân tích đề bài
   const handleProblemResult = (result: LabProblemResult) => {
     setLabProblemResult(result);
-    
+
     // Merge hoá chất: dùng lại nếu trùng id, thêm mới nếu chưa có
     const newChemicals = [...chemicals];
     let addedCount = 0;
-    
+
     result.chemicals.forEach(aiChem => {
       const existingIndex = newChemicals.findIndex(
         c => c.id === aiChem.id || c.formula.toLowerCase() === aiChem.formula.toLowerCase()
       );
-      
+
       if (existingIndex === -1) {
         // Hoá chất mới - thêm vào danh sách
         newChemicals.push({
@@ -170,12 +189,12 @@ export default function App() {
         addedCount++;
       }
     });
-    
+
     setChemicals(newChemicals);
     setActiveTab('lab');
     setLabMode('visual');
     setIsQuizMode(false);
-    
+
     Swal.fire({
       title: '✨ Phân tích thành công!',
       html: `<div style="text-align:left">
@@ -264,7 +283,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex h-screen bg-[#0a0e1a] text-slate-200 overflow-hidden ambient-bg">
+    <div className="flex h-screen overflow-hidden ambient-bg" style={{ color: 'var(--text-primary)' }}>
       {/* Sidebar */}
       <aside className="w-64 glass-sidebar flex flex-col shrink-0 relative z-10">
         <div className="p-6">
@@ -287,8 +306,8 @@ export default function App() {
                 onClick={() => handleTabChange(item.id)}
                 className={cn(
                   "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 relative group",
-                  activeTab === item.id 
-                    ? "bg-violet-500/15 text-violet-300" 
+                  activeTab === item.id
+                    ? "bg-violet-500/15 text-violet-300"
                     : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200"
                 )}
               >
@@ -315,7 +334,7 @@ export default function App() {
               <span>Streak: 5 ngày 🔥</span>
             </div>
             <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-              <motion.div 
+              <motion.div
                 className="bg-gradient-to-r from-amber-500 to-orange-500 h-full rounded-full"
                 initial={{ width: 0 }}
                 animate={{ width: '75%' }}
@@ -325,7 +344,7 @@ export default function App() {
           </div>
 
           {/* Settings Button */}
-          <button 
+          <button
             onClick={() => setIsApiModalOpen(true)}
             className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-800/80 border border-slate-700/50 text-slate-300 rounded-xl text-sm font-medium hover:bg-slate-700/80 hover:text-white hover:border-violet-500/30 transition-all duration-200"
           >
@@ -348,12 +367,33 @@ export default function App() {
           <div className="flex items-center gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-              <input 
-                type="text" 
-                placeholder="Tìm kiếm hóa chất, bài học..." 
+              <input
+                type="text"
+                placeholder="Tìm kiếm hóa chất, bài học..."
                 className="pl-10 pr-4 py-2 dark-input text-sm w-64"
               />
             </div>
+
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="theme-toggle-btn"
+              title={isDarkMode ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}
+            >
+              <motion.div
+                key={isDarkMode ? 'moon' : 'sun'}
+                initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
+                animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
+                transition={{ duration: 0.35, type: 'spring', stiffness: 200, damping: 15 }}
+              >
+                {isDarkMode
+                  ? <Moon className="w-5 h-5 text-violet-300" />
+                  : <Sun className="w-5 h-5 text-amber-500" />
+                }
+              </motion.div>
+            </button>
+
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm shadow-lg neon-glow">
               DL
             </div>
@@ -375,7 +415,7 @@ export default function App() {
             ) : (
               <>
                 {activeTab === 'dashboard' && (
-                  <motion.div 
+                  <motion.div
                     key="dashboard"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -397,37 +437,37 @@ export default function App() {
                           cyan: 'shadow-cyan-500/20', amber: 'shadow-amber-500/20',
                         };
                         return (
-                        <motion.div 
-                          key={subject.id} 
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: idx * 0.1 }}
-                          onClick={() => setSelectedSubject(subject.id)}
-                          className={cn(
-                            "glass-card p-6 rounded-2xl cursor-pointer group relative overflow-hidden border transition-all duration-300",
-                            "hover:scale-[1.03] hover:shadow-xl",
-                            detail ? colorMap[detail.color] : ''
-                          )}
-                        >
-                          {/* Hover gradient overlay */}
-                          <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/0 group-hover:from-white/5 group-hover:to-transparent transition-all duration-500 rounded-2xl" />
-                          
-                          <div className="relative z-10">
-                            <div className="text-3xl mb-3">{subjectIcons[idx]}</div>
-                            <h3 className="font-bold text-slate-100 mb-1 text-sm">{subject.name}</h3>
-                            <p className="text-xs text-slate-500 mb-3">{subject.questionsCount} bài học</p>
-                            <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 group-hover:text-slate-300 transition-colors">
-                              <span>Xem chi tiết</span>
-                              <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
-                            </div>
-                          </div>
+                          <motion.div
+                            key={subject.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: idx * 0.1 }}
+                            onClick={() => setSelectedSubject(subject.id)}
+                            className={cn(
+                              "glass-card p-6 rounded-2xl cursor-pointer group relative overflow-hidden border transition-all duration-300",
+                              "hover:scale-[1.03] hover:shadow-xl",
+                              detail ? colorMap[detail.color] : ''
+                            )}
+                          >
+                            {/* Hover gradient overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-white/0 to-white/0 group-hover:from-white/5 group-hover:to-transparent transition-all duration-500 rounded-2xl" />
 
-                          {/* Bottom gradient line */}
-                          <div className={cn(
-                            "absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-all duration-500",
-                            detail?.gradient ? `bg-gradient-to-r ${detail.gradient}` : 'from-violet-500 to-cyan-500'
-                          )} />
-                        </motion.div>
+                            <div className="relative z-10">
+                              <div className="text-3xl mb-3">{subjectIcons[idx]}</div>
+                              <h3 className="font-bold text-slate-100 mb-1 text-sm">{subject.name}</h3>
+                              <p className="text-xs text-slate-500 mb-3">{subject.questionsCount} bài học</p>
+                              <div className="flex items-center gap-1 text-[10px] font-bold text-slate-400 group-hover:text-slate-300 transition-colors">
+                                <span>Xem chi tiết</span>
+                                <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                              </div>
+                            </div>
+
+                            {/* Bottom gradient line */}
+                            <div className={cn(
+                              "absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-all duration-500",
+                              detail?.gradient ? `bg-gradient-to-r ${detail.gradient}` : 'from-violet-500 to-cyan-500'
+                            )} />
+                          </motion.div>
                         );
                       })}
                     </div>
@@ -437,7 +477,7 @@ export default function App() {
                       <div className="lg:col-span-2 space-y-6">
                         <div className="flex items-center justify-between">
                           <h3 className="text-xl font-bold text-slate-100">Thí nghiệm đề xuất</h3>
-                          <button 
+                          <button
                             onClick={() => setIsQuizMode(true)}
                             className="text-violet-400 text-sm font-bold flex items-center gap-1 hover:text-violet-300 transition-colors"
                           >
@@ -446,7 +486,7 @@ export default function App() {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                           {EXPERIMENTS.map((exp, idx) => (
-                            <motion.div 
+                            <motion.div
                               key={exp.id}
                               initial={{ opacity: 0, y: 20 }}
                               animate={{ opacity: 1, y: 0 }}
@@ -465,7 +505,7 @@ export default function App() {
                               <div className="p-5">
                                 <h4 className="font-bold text-slate-100 mb-2">{exp.title}</h4>
                                 <p className="text-sm text-slate-400 mb-4 line-clamp-2">{exp.description}</p>
-                                <button 
+                                <button
                                   onClick={() => startExperiment(exp.id)}
                                   className="w-full flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-violet-600 to-cyan-600 text-white rounded-xl text-sm font-bold hover:from-violet-500 hover:to-cyan-500 transition-all duration-300 shadow-lg shadow-violet-500/20 glow-btn"
                                 >
@@ -489,7 +529,7 @@ export default function App() {
                 )}
 
                 {activeTab === 'lab' && (
-                  <motion.div 
+                  <motion.div
                     key="lab"
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -500,7 +540,7 @@ export default function App() {
                       <div className="flex items-center gap-4">
                         <h2 className="text-2xl font-bold text-slate-100">Phòng thí nghiệm</h2>
                         <div className="flex bg-slate-800/60 p-1 rounded-xl border border-slate-700/50">
-                          <button 
+                          <button
                             onClick={() => { setLabMode('visual'); setIsHeating(false); }}
                             className={cn(
                               "px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200",
@@ -509,7 +549,7 @@ export default function App() {
                           >
                             Chế độ Trực quan
                           </button>
-                          <button 
+                          <button
                             onClick={() => { setLabMode('3d'); setIsHeating(false); }}
                             className={cn(
                               "px-4 py-1.5 rounded-lg text-sm font-bold transition-all duration-200",
@@ -521,13 +561,13 @@ export default function App() {
                         </div>
                       </div>
                       <div className="flex gap-3">
-                        <button 
+                        <button
                           onClick={() => setIsProblemUploaderOpen(true)}
                           className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600 to-cyan-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-violet-500/20 hover:shadow-violet-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all glow-btn"
                         >
                           <FileUp className="w-4 h-4" /> Tải đề bài
                         </button>
-                        <button 
+                        <button
                           onClick={resetLab}
                           className="flex items-center gap-2 px-4 py-2 bg-slate-800/60 border border-slate-700/50 rounded-xl text-sm font-bold text-slate-400 hover:text-slate-200 hover:bg-slate-700/60 hover:border-slate-600 transition-all"
                         >
@@ -824,7 +864,7 @@ export default function App() {
                 )}
 
                 {activeTab === 'library' && (
-                  <motion.div 
+                  <motion.div
                     key="library"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -834,7 +874,7 @@ export default function App() {
                     {/* Header: title + add button */}
                     <div className="flex items-center justify-between">
                       <h3 className="text-2xl font-bold text-slate-100">Thư viện hóa chất</h3>
-                      <button 
+                      <button
                         onClick={() => {
                           Swal.fire({
                             title: '➕ Thêm hóa chất mới',
@@ -970,50 +1010,50 @@ export default function App() {
                           <p className="text-sm text-slate-600 mt-1">Thử thay đổi từ khóa hoặc bộ lọc</p>
                         </div>
                       ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                      {filtered.map((chem, idx) => (
-                        <motion.div 
-                          key={chem.id}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: idx * 0.03 }}
-                          className="glass-card p-6 rounded-2xl hover:border-violet-500/30 transition-all duration-300 group relative overflow-hidden"
-                        >
-                          {/* Colored left accent */}
-                          <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl opacity-60 group-hover:opacity-100 transition-opacity" style={{ backgroundColor: chem.color }} />
-                          
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="w-12 h-12 rounded-xl shadow-inner border border-slate-600/50 relative overflow-hidden" style={{ backgroundColor: '#1e293b' }}>
-                              <div className="absolute bottom-0 left-0 right-0 h-3/5" style={{ backgroundColor: chem.color, opacity: 0.85 }} />
-                            </div>
-                            <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-700/80 text-slate-300 uppercase tracking-wider border border-slate-600/30">
-                              {chem.state === 'liquid' ? 'Lỏng' : chem.state === 'solid' ? 'Rắn' : 'Khí'}
-                            </span>
-                          </div>
-                          <h4 className="text-base font-bold text-slate-100">{chem.name}</h4>
-                          <p className="text-violet-400 font-mono font-bold mb-3 text-sm">{chem.formula}</p>
-                          <p className="text-sm text-slate-400 mb-4 line-clamp-2">{chem.description}</p>
-                          
-                          <div className="space-y-2">
-                            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Cảnh báo an toàn</div>
-                            <div className="flex flex-wrap gap-2">
-                              {chem.safetyWarnings.map((w, i) => (
-                                <span key={i} className="text-[10px] font-bold px-2 py-1 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
-                                  {w}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                          {filtered.map((chem, idx) => (
+                            <motion.div
+                              key={chem.id}
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: idx * 0.03 }}
+                              className="glass-card p-6 rounded-2xl hover:border-violet-500/30 transition-all duration-300 group relative overflow-hidden"
+                            >
+                              {/* Colored left accent */}
+                              <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl opacity-60 group-hover:opacity-100 transition-opacity" style={{ backgroundColor: chem.color }} />
+
+                              <div className="flex items-start justify-between mb-4">
+                                <div className="w-12 h-12 rounded-xl shadow-inner border border-slate-600/50 relative overflow-hidden" style={{ backgroundColor: '#1e293b' }}>
+                                  <div className="absolute bottom-0 left-0 right-0 h-3/5" style={{ backgroundColor: chem.color, opacity: 0.85 }} />
+                                </div>
+                                <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-700/80 text-slate-300 uppercase tracking-wider border border-slate-600/30">
+                                  {chem.state === 'liquid' ? 'Lỏng' : chem.state === 'solid' ? 'Rắn' : 'Khí'}
                                 </span>
-                              ))}
-                            </div>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
+                              </div>
+                              <h4 className="text-base font-bold text-slate-100">{chem.name}</h4>
+                              <p className="text-violet-400 font-mono font-bold mb-3 text-sm">{chem.formula}</p>
+                              <p className="text-sm text-slate-400 mb-4 line-clamp-2">{chem.description}</p>
+
+                              <div className="space-y-2">
+                                <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Cảnh báo an toàn</div>
+                                <div className="flex flex-wrap gap-2">
+                                  {chem.safetyWarnings.map((w, i) => (
+                                    <span key={i} className="text-[10px] font-bold px-2 py-1 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
+                                      {w}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
                       );
                     })()}
                   </motion.div>
                 )}
 
                 {activeTab === 'lessons' && (
-                  <motion.div 
+                  <motion.div
                     key="lessons"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -1029,7 +1069,7 @@ export default function App() {
                 )}
 
                 {activeTab === 'progress' && (
-                  <motion.div 
+                  <motion.div
                     key="progress"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -1073,7 +1113,7 @@ export default function App() {
                           { name: 'Sắt tác dụng với Axit', time: '2 ngày trước, 10:15', score: '8.5/10' },
                           { name: 'Kết tủa với BaCl₂', time: '3 ngày trước, 16:45', score: '9.5/10' },
                         ].map((item, i) => (
-                          <motion.div 
+                          <motion.div
                             key={i}
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
