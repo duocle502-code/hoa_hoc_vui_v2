@@ -513,3 +513,60 @@ html.light button.bg-slate-800\/60 {
   border-color: rgba(139, 92, 246, 0.2) !important;
   color: #374151 !important;
 }
+
+/* ===== 3D AR MODE PANEL — LIGHT MODE ===== */
+
+/* Main panel container */
+html.light .lab-3d-panel {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-color: rgba(139, 92, 246, 0.25) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Panel heading */
+html.light .lab-3d-panel h3 {
+  color: #111827 !important;
+}
+
+/* Chemical item rows — normal state */
+html.light .lab-3d-chem-item {
+  background: rgba(241, 245, 249, 0.9) !important;
+  border-color: rgba(139, 92, 246, 0.15) !important;
+}
+
+html.light .lab-3d-chem-item:hover {
+  background: rgba(237, 233, 254, 0.6) !important;
+  border-color: rgba(139, 92, 246, 0.35) !important;
+}
+
+/* Chemical name text */
+html.light .lab-3d-chem-name {
+  color: #111827 !important;
+}
+
+/* Mini test-tube icon background */
+html.light .lab-3d-chem-tube {
+  background: #f1f5f9 !important;
+  border-color: rgba(139, 92, 246, 0.2) !important;
+}
+
+/* Checkbox/Plus button — unselected */
+html.light .lab-3d-chem-item>div:last-child {
+  background: rgba(226, 232, 240, 0.9) !important;
+  color: #6b7280 !important;
+}
+
+/* Reaction log panel */
+html.light .lab-react-log {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-color: rgba(139, 92, 246, 0.2) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06) !important;
+}
+
+html.light .lab-react-log .border-b {
+  border-color: rgba(139, 92, 246, 0.15) !important;
+}
+
+html.light .lab-react-log .text-slate-600 {
+  color: #6b7280 !important;
+}
