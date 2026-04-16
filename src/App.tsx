@@ -77,21 +77,14 @@ export default function App() {
 
   const toggleTheme = () => setIsDarkMode(prev => !prev);
 
+  // Track the last completed reaction message to show on stop
+  const lastReactionMsgRef = React.useRef<string | null>(null);
+
   const handleReaction = (data: any) => {
     setReactionLog(prev => [`[${new Date().toLocaleTimeString()}] ${data.message}`, ...prev]);
-    if (data.status === 'completed' && !isReacting) {
-      // Toast nhỏ — không có backdrop, không tối màn hình, không chặn tương tác
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'success',
-        title: data.message,
-        showConfirmButton: false,
-        timer: 2500,
-        timerProgressBar: true,
-        backdrop: false,
-        customClass: { popup: 'text-sm' },
-      });
+    // Only track the message, do NOT show toast here (avoids flashing)
+    if (data.status === 'completed') {
+      lastReactionMsgRef.current = data.message;
     }
   };
 
@@ -148,6 +141,22 @@ export default function App() {
   };
 
   const resetLab = () => {
+    // Show summary toast if there was a completed reaction
+    if (lastReactionMsgRef.current) {
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: '✅ Kết quả phản ứng',
+        text: lastReactionMsgRef.current,
+        showConfirmButton: false,
+        timer: 3500,
+        timerProgressBar: true,
+        backdrop: false,
+        customClass: { popup: 'text-sm' },
+      });
+      lastReactionMsgRef.current = null;
+    }
     setSelectedChemicals([]);
     setActiveExperiment(undefined);
     setCustomReaction(null);
