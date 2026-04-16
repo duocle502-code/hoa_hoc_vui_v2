@@ -765,7 +765,7 @@ export default function App() {
 
                           {/* Reaction Log */}
                           <div
-                            className="rounded-2xl p-4 font-mono text-xs h-36 overflow-y-auto"
+                            className="lab-react-log rounded-2xl p-4 font-mono text-xs h-36 overflow-y-auto"
                             style={{
                               background: 'rgba(6,11,24,0.85)',
                               backdropFilter: 'blur(12px)',
@@ -794,7 +794,7 @@ export default function App() {
                         {/* ── 3D Chemical Panel (right) ── */}
                         <div className="flex flex-col gap-4 overflow-hidden">
                           <div
-                            className="rounded-2xl p-4 flex-1 overflow-y-auto"
+                            className="lab-3d-panel rounded-2xl p-4 flex-1 overflow-y-auto"
                             style={{
                               background: 'rgba(6,11,24,0.85)',
                               backdropFilter: 'blur(12px)',
@@ -810,7 +810,7 @@ export default function App() {
                                 <div
                                   key={chem.id}
                                   onClick={() => toggleChemical(chem.id)}
-                                  className="flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition-all"
+                                  className="lab-3d-chem-item flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition-all"
                                   style={selectedChemicals.includes(chem.id) ? {
                                     background: 'rgba(124,58,237,0.15)',
                                     border: '1px solid rgba(124,58,237,0.4)',
@@ -822,14 +822,14 @@ export default function App() {
                                 >
                                   <div className="flex items-center gap-2.5">
                                     <div
-                                      className="w-7 h-9 rounded-lg relative overflow-hidden shrink-0"
+                                      className="lab-3d-chem-tube w-7 h-9 rounded-lg relative overflow-hidden shrink-0"
                                       style={{ background: '#0f172a', border: '1px solid rgba(51,65,85,0.6)' }}
                                     >
                                       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3.5 h-1 rounded-b-sm" style={{ background: 'rgba(148,163,184,0.4)' }} />
                                       <div className="absolute bottom-0 left-0 right-0 h-[55%]" style={{ background: chem.color, opacity: 0.85 }} />
                                     </div>
                                     <div>
-                                      <div className="text-xs font-bold text-slate-200">{chem.name}</div>
+                                      <div className="lab-3d-chem-name text-xs font-bold text-slate-200">{chem.name}</div>
                                       <div className="text-[10px] font-mono text-violet-400">{chem.formula}</div>
                                     </div>
                                   </div>
